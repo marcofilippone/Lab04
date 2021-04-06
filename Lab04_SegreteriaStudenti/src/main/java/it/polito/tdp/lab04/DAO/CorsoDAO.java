@@ -4,6 +4,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -36,8 +37,9 @@ public class CorsoDAO {
 
 				System.out.println(codins + " " + numeroCrediti + " " + nome + " " + periodoDidattico);
 
-				// Crea un nuovo JAVA Bean Corso
-				// Aggiungi il nuovo oggetto Corso alla lista corsi
+				Corso c = new Corso(codins, numeroCrediti, nome, periodoDidattico);
+				corsi.add(c);
+				
 			}
 
 			conn.close();
@@ -51,6 +53,28 @@ public class CorsoDAO {
 		}
 	}
 	
+	public List<Corso> getCorsiPerStudente(Integer matricola){
+		String sql = "SELECT * "
+				+"FROM corso c, iscrizione i "
+				+"WHERE c.codins=i.codins AND i.matricola=?";
+		List<Corso> risultato = new ArrayList();
+		try {
+			Connection conn = ConnectDB.getConnection();
+			PreparedStatement st = conn.prepareStatement(sql);
+			st.setInt(1, matricola);
+			ResultSet rs = st.executeQuery();
+			while(rs.next()) {
+				risultato.add(new Corso(rs.getString("codins"), rs.getInt("crediti"), rs.getString("nome"), rs.getInt("pd")));
+			}
+			rs.close();
+			st.close();
+			conn.close();
+			return risultato;
+		} catch(SQLException e) {
+			throw new RuntimeException();
+		}
+	}
+	
 	
 	/*
 	 * Dato un codice insegnamento, ottengo il corso
@@ -59,12 +83,7 @@ public class CorsoDAO {
 		// TODO
 	}
 
-	/*
-	 * Ottengo tutti gli studenti iscritti al Corso
-	 */
-	public void getStudentiIscrittiAlCorso(Corso corso) {
-		// TODO
-	}
+	
 
 	/*
 	 * Data una matricola ed il codice insegnamento, iscrivi lo studente al corso.
