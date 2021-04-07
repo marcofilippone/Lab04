@@ -30,4 +30,8 @@ public class Model {
 	public List<Corso> getCorsiPerStudente(Integer matricola){
 		return corsoDao.getCorsiPerStudente(matricola);
 	}
+	
+	public boolean inscriviStudenteACorso(Integer matricola, String codins) {
+		return corsoDao.inscriviStudenteACorso(matricola, codins);
+	}
 }

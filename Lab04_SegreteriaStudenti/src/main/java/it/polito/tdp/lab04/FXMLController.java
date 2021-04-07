@@ -54,6 +54,25 @@ public class FXMLController {
 
     @FXML
     private Button btnReset;
+    
+    @FXML
+    void handleCheck(ActionEvent event) {
+    	String matr = txtMatricola.getText();
+    	Integer m;
+    	try {
+    		m = Integer.parseInt(matr);
+    	} catch(NumberFormatException nfe) {
+    		txtResult.setText("Inserire una matricola fatta solo di numeri");
+    		return;
+    	}
+    	Studente s = model.getStudentebyMatr(m);
+    	if(s==null) {
+    		txtResult.setText("La matricola inserita non appartiene a nessuno studente");
+    		return;
+    	}
+    	txtNome.setText(s.getNome());
+    	txtCognome.setText(s.getCognome());
+    }
 
     @FXML
     void cercaCorsi(ActionEvent event) {
@@ -74,7 +93,7 @@ public class FXMLController {
     	List<Corso> lista = model.getCorsiPerStudente(m);
     	
     	//se non seleziono corso
-    	if(comboCorsi.getValue() == null) {
+    	if(comboCorsi.getValue() == null || comboCorsi.getValue().getNome().equals("")) {
         	for(Corso c : lista) {
         		txtResult.appendText(c.toString2()+"\n");
         	}
@@ -97,7 +116,7 @@ public class FXMLController {
     void cercaIscrittiCorso(ActionEvent event) {
     	txtResult.clear();
     	Corso c = comboCorsi.getValue();
-    	if(c==null) {
+    	if(c==null || c.getNome().equals("")) {
     		txtResult.setText("Devi selezionare un corso");
     		return;
     	}
@@ -109,20 +128,12 @@ public class FXMLController {
 
     @FXML
     void doIscrivi(ActionEvent event) {
-
-    }
-
-    @FXML
-    void doReset(ActionEvent event) {
     	txtResult.clear();
-    	txtNome.clear();
-    	txtCognome.clear();
-    	txtMatricola.clear();
-    	checkStudente.setSelected(false);
-    }
-
-    @FXML
-    void handleCheck(ActionEvent event) {
+    	Corso c = comboCorsi.getValue();
+    	if(c == null ||  c.getNome().equals("")) {
+    		txtResult.setText("Devi selezionare un corso");
+    		return;
+    	}
     	String matr = txtMatricola.getText();
     	Integer m;
     	try {
@@ -136,9 +147,27 @@ public class FXMLController {
     		txtResult.setText("La matricola inserita non appartiene a nessuno studente");
     		return;
     	}
-    	txtNome.setText(s.getNome());
-    	txtCognome.setText(s.getCognome());
+    	List<Corso> lista = model.getCorsiPerStudente(m);
+    	if(lista.contains(c)) {
+    		txtResult.setText("Lo studente risulta gia iscritto a questo corso");
+    		return;
+    	}
+    	else {
+    		if(model.inscriviStudenteACorso(m, c.getCodins())) {
+    			txtResult.setText("Iscrizione avvenuta con successo");
+    		}
+    	}
     }
+
+    @FXML
+    void doReset(ActionEvent event) {
+    	txtResult.clear();
+    	txtNome.clear();
+    	txtCognome.clear();
+    	txtMatricola.clear();
+    	checkStudente.setSelected(false);
+    }
+
 
     @FXML
     void initialize() {
